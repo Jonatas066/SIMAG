@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+}
+
+header {
+  background-color: #bfbfbf;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 50px;
+  margin-right: 10px;
+}
+
+nav a {
+  text-decoration: none;
+  color: black;
+  margin-left: 20px;
+  font-size: 18px;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 70px);
+}
+
+.menu-lateral {
+  background-color: #d9d9d9;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+}
+
+.menu-lateral button {
+  width: 150px;
+  height: 60px;
+  margin: 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #a6a6a6;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.menu-lateral button.ativo {
+  background-color: #8c8c8c;
+}
+
+.conteudo {
+  flex: 1;
+  background-color: white;
+  margin: 20px;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.dados {
+  margin-top: 40px;
+  font-size: 20px;
+}
+.grafico-container {
+  background: white;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
