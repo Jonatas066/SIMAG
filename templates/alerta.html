@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMAGT - Alerta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylemonitoramento.css') }}">
+    <script>
+        async function atualizarAlerta() {
+            const resposta = await fetch("/dados");
+            const dados = await resposta.json();
+            const nivel = dados.nivelGas;
+            const qualidade = dados.qualidade;
+
+            document.getElementById("nivelGas").innerText = nivel;
+            document.getElementById("qualidade").innerText = qualidade;
+
+            const alertaBox = document.getElementById("alertaBox");
+
+            if (nivel > 300) {
+                alertaBox.innerText = "⚠️ ALERTA! NÍVEL DE GÁS TÓXICO DETECTADO!";
+                alertaBox.style.backgroundColor = "#ff4d4d";
+                alertaBox.style.color = "white";
+                alertaBox.style.animation = "piscar 1s infinite";
+            } else if (nivel > 150) {
+                alertaBox.innerText = "⚠️ Atenção: nível elevado!";
+                alertaBox.style.backgroundColor = "#ffa500";
+                alertaBox.style.color = "black";
+                alertaBox.style.animation = "none";
+            } else {
+                alertaBox.innerText = "Nível de gás normal.";
+                alertaBox.style.backgroundColor = "#00bfa6";
+                alertaBox.style.color = "white";
+                alertaBox.style.animation = "none";
+            }
+        }
+
+        setInterval(atualizarAlerta, 3000);
+        window.onload = atualizarAlerta;
+    </script>
+</head>
+<body>
+    <header class="topbar">
+        <img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAGT" class="logo">
+        <nav>
+            <a href="/">Home</a>
+            <a href="/sobre">Sobre</a>
+        </nav>
+    </header>
+
+    <div class="layout">
+        <aside class="menu">
+            <a href="/alerta" class="botao ativo">ALERTA</a>
+            <a href="/monitoramento" class="botao">MONITORAMENTO</a>
+        </aside>
+
+        <main class="conteudo">
+            <h2>ALERTA</h2>
+            <div id="alertaBox" class="alerta-box">Carregando dados...</div>
+
+            <div class="info-sensor">
+                <p><strong>Nível de Gás:</strong> <span id="nivelGas">--</span></p>
+                <p><strong>Qualidade do Ar:</strong> <span id="qualidade">--</span></p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

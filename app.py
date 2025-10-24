@@ -5,14 +5,23 @@ import firebase_admin
 app = Flask(__name__)
 
 # === CONFIGURAÇÃO DO FIREBASE ===
-cred = credentials.Certificate("sismag-firebase-adminsdk-fbsvc-9c97b7bf6b.json")  # arquivo .json baixado do Firebase
+cred = credentials.Certificate("sismag-firebase-adminsdk-fbsvc-9c97b7bf6b.json")
 initialize_app(cred, {
     'databaseURL': 'https://sismag-default-rtdb.firebaseio.com/'
 })
 
+# === ROTAS ===
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/monitoramento')
+def monitoramento():
+    return render_template('monitoramento.html')
+
+@app.route('/alerta')
+def alerta():
+    return render_template('alerta.html')
 
 @app.route('/dados')
 def dados():

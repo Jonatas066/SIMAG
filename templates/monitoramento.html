@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMAG - Monitoramento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylemonitoramento.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let grafico;
+    let historicoNiveis = [];
+    let historicoTempo = [];
+
+    async function atualizarDados() {
+      const resposta = await fetch('/dados');
+      const dados = await resposta.json();
+
+      // Atualiza os valores na tela
+      document.getElementById("nivelGas").innerText = dados.nivelGas;
+      document.getElementById("qualidade").innerText = dados.qualidade;
+
+      // Atualiza o gráfico
+      const agora = new Date().toLocaleTimeString();
+      historicoTempo.push(agora);
+      historicoNiveis.push(dados.nivelGas);
+
+      // Mantém apenas os últimos 10 pontos
+      if (historicoTempo.length > 10) {
+        historicoTempo.shift();
+        historicoNiveis.shift();
+      }
+
+      grafico.data.labels = historicoTempo;
+      grafico.data.datasets[0].data = historicoNiveis;
+      grafico.update();
+    }
+
+    function criarGrafico() {
+      const ctx = document.getElementById('grafico').getContext('2d');
+      grafico = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Nível de Gás (ppm)',
+            data: [],
+            borderColor: '#1a73e8',
+            backgroundColor: 'rgba(26, 115, 232, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    window.onload = function() {
+      criarGrafico();
+      atualizarDados();
+      setInterval(atualizarDados, 3000);
+    };
+  </script>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAG"></a>
+      <a href="{{ url_for('index') }}" class="nome">SIMAG</a>
+    </div>
+    <nav>
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="#">Sobre</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <aside class="menu-lateral">
+       <a href="{{ url_for('alerta') }}"><button >ALERTA</button></a>
+      <button class="ativo">MONITORAMENTO</button>
+    </aside>
+
+    <main class="conteudo">
+      <h2>MONITORAMENTO</h2>
+      <div class="dados">
+        <p><strong>Nível de Gás:</strong> <span id="nivelGas">---</span></p>
+        <p><strong>Qualidade do Ar:</strong> <span id="qualidade">---</span></p>
+      </div>
+
+      <div class="grafico-container">
+        <canvas id="grafico" width="400" height="200"></canvas>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

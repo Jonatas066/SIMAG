@@ -1,0 +1,46 @@
+body.tela-inicial {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+.log {
+    position: absolute; /* Ou relative, fixed, sticky */
+    top: 100px; /* Move 50px para baixo a partir do topo */
+    text-align: center;
+}
+
+.logo {
+    width: 300px;
+    margin-bottom: 30px;
+}
+
+.botao-iniciar {
+    display: inline-block;
+    background-color: #00bcd4;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.botao-iniciar:hover {
+    background-color: #0097a7;
+}
+
+h2 {
+    margin-top: 40px;
+    color: #333;
+    font-size: 20px;
+}
+.botao{
+    text-align: center;
+
+}
