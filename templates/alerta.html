@@ -17,12 +17,12 @@
 
             const alertaBox = document.getElementById("alertaBox");
 
-            if (nivel > 300) {
+            if (nivel > 600) {
                 alertaBox.innerText = "⚠️ ALERTA! NÍVEL DE GÁS TÓXICO DETECTADO!";
                 alertaBox.style.backgroundColor = "#ff4d4d";
                 alertaBox.style.color = "white";
                 alertaBox.style.animation = "piscar 1s infinite";
-            } else if (nivel > 150) {
+            } else if (nivel > 500) {
                 alertaBox.innerText = "⚠️ Atenção: nível elevado!";
                 alertaBox.style.backgroundColor = "#ffa500";
                 alertaBox.style.color = "black";
@@ -40,19 +40,21 @@
     </script>
 </head>
 <body>
-    <header class="topbar">
-        <img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAGT" class="logo">
+    <header class="logo">
+      <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAG"></a>
+      <a href="{{ url_for('index') }}" class="nome">SIMAG</a>
         <nav>
             <a href="/">Home</a>
             <a href="/sobre">Sobre</a>
         </nav>
     </header>
 
-    <div class="layout">
-        <aside class="menu">
-            <a href="/alerta" class="botao ativo">ALERTA</a>
-            <a href="/monitoramento" class="botao">MONITORAMENTO</a>
-        </aside>
+     <div class="container">
+    <aside class="menu-lateral">
+        <button class="ativo">ALERTA</button>
+       <a href="{{ url_for('monitoramento') }}"><button >MONITORAMENTO</button></a>
+      
+    </aside>
 
         <main class="conteudo">
             <h2>ALERTA</h2>

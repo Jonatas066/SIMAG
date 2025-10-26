@@ -19,7 +19,7 @@ header {
 }
 
 .logo img {
-  width: 80px;
+  width: 60px;
   margin-right: 1px;
 }
 
@@ -85,7 +85,7 @@ nav a {
 }
 .nome{
   position: absolute; /* Ou relative, fixed, sticky */
-    left:75px; /* Move 50px para baixo a partir do topo */
+    left:55px; /* Move 50px para baixo a partir do topo */
     text-align: left;
   display: inline-block;
     color: rgb(0, 0, 0);
