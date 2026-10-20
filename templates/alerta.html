@@ -1,70 +1,147 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMAGT - Alerta</title>
+    <title>SIMAG - Alerta</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylemonitoramento.css') }}">
-    <script>
-        async function atualizarAlerta() {
-            const resposta = await fetch("/dados");
-            const dados = await resposta.json();
-            const nivel = dados.nivelGas;
-            const qualidade = dados.qualidade;
-
-            document.getElementById("nivelGas").innerText = nivel;
-            document.getElementById("qualidade").innerText = qualidade;
-
-            const alertaBox = document.getElementById("alertaBox");
-
-            if (nivel > 600) {
-                alertaBox.innerText = "⚠️ ALERTA! NÍVEL DE GÁS TÓXICO DETECTADO!";
-                alertaBox.style.backgroundColor = "#ff4d4d";
-                alertaBox.style.color = "white";
-                alertaBox.style.animation = "piscar 1s infinite";
-            } else if (nivel > 500) {
-                alertaBox.innerText = "⚠️ Atenção: nível elevado!";
-                alertaBox.style.backgroundColor = "#ffa500";
-                alertaBox.style.color = "black";
-                alertaBox.style.animation = "none";
-            } else {
-                alertaBox.innerText = "Nível de gás normal.";
-                alertaBox.style.backgroundColor = "#00bfa6";
-                alertaBox.style.color = "white";
-                alertaBox.style.animation = "none";
-            }
+    <style>
+        .alert-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 24px;
         }
-
-        setInterval(atualizarAlerta, 3000);
-        window.onload = atualizarAlerta;
-    </script>
+        .alert-box.critico {
+            border-left: 5px solid #dc2626;
+        }
+        .alert-box.normal {
+            border-left: 5px solid #22c55e;
+        }
+        .alert-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 16px 0 8px;
+        }
+        .alert-title.critico { color: #dc2626; }
+        .alert-title.normal { color: #16a34a; }
+        .alert-info {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 32px;
+        }
+        .alert-info div {
+            text-align: center;
+        }
+        .alert-info .label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        .alert-info .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
-    <header class="logo">
-      <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAG"></a>
-      <a href="{{ url_for('index') }}" class="nome">SIMAG</a>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/sobre">Sobre</a>
-        </nav>
-    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">▲</div>
+                <span>SIMAG</span>
+            </div>
+            <nav>
+                <a href="/monitoramento" class="nav-item">
+                    <span class="icon">📊</span> Monitoramento
+                </a>
+                <a href="/alerta" class="nav-item active">
+                    <span class="icon">🔔</span> Alerta
+                </a>
+            </nav>
+            <div class="status-device">
+                <span class="dot online" id="statusDot"></span>
+                <span id="statusText">Dispositivo Online</span>
+            </div>
+        </aside>
 
-     <div class="container">
-    <aside class="menu-lateral">
-        <button class="ativo">ALERTA</button>
-       <a href="{{ url_for('monitoramento') }}"><button >MONITORAMENTO</button></a>
-      
-    </aside>
+        <main class="main">
+            <header>
+                <h1>Alerta</h1>
+                <p class="subtitle">Status atual do sistema</p>
+            </header>
 
-        <main class="conteudo">
-            <h2>ALERTA</h2>
-            <div id="alertaBox" class="alerta-box">Carregando dados...</div>
+            <div class="alert-box" id="alertBox">
+                <div style="font-size: 48px;" id="alertIcon">⏳</div>
+                <div class="alert-title" id="alertTitle">Carregando...</div>
+                <p id="alertMsg" style="color:#666">Aguardando dados do sensor</p>
 
-            <div class="info-sensor">
-                <p><strong>Nível de Gás:</strong> <span id="nivelGas">--</span></p>
-                <p><strong>Qualidade do Ar:</strong> <span id="qualidade">--</span></p>
+                <div class="alert-info">
+                    <div>
+                        <div class="label">Nível de Gás</div>
+                        <div class="value" id="nivelGas">-- ppm</div>
+                    </div>
+                    <div>
+                        <div class="label">Qualidade</div>
+                        <div class="value" id="qualidade">--</div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
+
+    <script>
+        async function buscarDados() {
+            try {
+                const res = await fetch('/dados');
+                const data = await res.json();
+                const nivel = data.nivelGas ?? 0;
+
+                document.getElementById('nivelGas').textContent = `${nivel} ppm`;
+
+                const box = document.getElementById('alertBox');
+                const title = document.getElementById('alertTitle');
+                const msg = document.getElementById('alertMsg');
+                const icon = document.getElementById('alertIcon');
+                const qualidade = document.getElementById('qualidade');
+
+                if (nivel >= 500) {
+                    box.className = 'alert-box critico';
+                    title.className = 'alert-title critico';
+                    title.textContent = 'ALERTA ATIVO';
+                    msg.textContent = 'Nível de gás acima do limite seguro';
+                    icon.textContent = '🚨';
+                    qualidade.textContent = 'Crítica';
+                } else if (nivel >= 300) {
+                    box.className = 'alert-box';
+                    title.className = 'alert-title';
+                    title.style.color = '#ca8a04';
+                    title.textContent = 'Atenção';
+                    msg.textContent = 'Nível de gás elevado';
+                    icon.textContent = '⚠️';
+                    qualidade.textContent = 'Moderada';
+                } else {
+                    box.className = 'alert-box normal';
+                    title.className = 'alert-title normal';
+                    title.textContent = 'Tudo Normal';
+                    msg.textContent = 'Nível de gás dentro do seguro';
+                    icon.textContent = '✅';
+                    qualidade.textContent = 'Boa';
+                }
+
+                document.getElementById('statusDot').className = 'dot online';
+                document.getElementById('statusText').textContent = 'Dispositivo Online';
+            } catch (err) {
+                document.getElementById('statusDot').className = 'dot offline';
+                document.getElementById('statusText').textContent = 'Dispositivo Offline';
+            }
+        }
+
+        buscarDados();
+        setInterval(buscarDados, 3000);
+    </script>
 </body>
 </html>

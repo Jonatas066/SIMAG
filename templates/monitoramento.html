@@ -1,103 +1,178 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIMAG - Monitoramento</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylemonitoramento.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    let grafico;
-    let historicoNiveis = [];
-    let historicoTempo = [];
-
-    async function atualizarDados() {
-      const resposta = await fetch('/dados');
-      const dados = await resposta.json();
-
-      // Atualiza os valores na tela
-      document.getElementById("nivelGas").innerText = dados.nivelGas;
-      document.getElementById("qualidade").innerText = dados.qualidade;
-
-      // Atualiza o gráfico
-      const agora = new Date().toLocaleTimeString();
-      historicoTempo.push(agora);
-      historicoNiveis.push(dados.nivelGas);
-
-      // Mantém apenas os últimos 10 pontos
-      if (historicoTempo.length > 10) {
-        historicoTempo.shift();
-        historicoNiveis.shift();
-      }
-
-      grafico.data.labels = historicoTempo;
-      grafico.data.datasets[0].data = historicoNiveis;
-      grafico.update();
-    }
-
-    function criarGrafico() {
-      const ctx = document.getElementById('grafico').getContext('2d');
-      grafico = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Nível de Gás (ppm)',
-            data: [],
-            borderColor: '#1a73e8',
-            backgroundColor: 'rgba(26, 115, 232, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.3,
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-
-    window.onload = function() {
-      criarGrafico();
-      atualizarDados();
-      setInterval(atualizarDados, 3000);
-    };
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMAG - Monitoramento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylemonitoramento.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='imagens/logosimag.png') }}" alt="Logo SIMAG"></a>
-      <a href="{{ url_for('index') }}" class="nome">SIMAG</a>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">▲</div>
+                <span>SIMAG</span>
+            </div>
+            <nav>
+                <a href="/monitoramento" class="nav-item active">
+                    <span class="icon">📊</span> Monitoramento
+                </a>
+                <a href="/alerta" class="nav-item">
+                    <span class="icon">🔔</span> Alerta
+                </a>
+            </nav>
+            <div class="status-device">
+                <span class="dot online" id="statusDot"></span>
+                <span id="statusText">Dispositivo Online</span>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="main">
+            <header>
+                <h1>Monitoramento</h1>
+                <p class="subtitle">Gás de Cozinha (GLP) em tempo real</p>
+            </header>
+
+            <!-- Cards -->
+            <div class="cards">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⛽</span>
+                        <span>Nível de Gás</span>
+                    </div>
+                    <div class="card-value" id="nivelGas">-- ppm</div>
+                    <div class="card-status" id="statusGas">
+                        <span class="badge">Aguardando...</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🍃</span>
+                        <span>Qualidade do Ar</span>
+                    </div>
+                    <div class="card-value" id="qualidade">--</div>
+                    <div class="card-status" id="statusQualidade">
+                        <span class="badge">Aguardando...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico -->
+            <div class="chart-card">
+                <h3>Histórico (últimas medições)</h3>
+                <canvas id="gasChart" height="100"></canvas>
+            </div>
+
+            <div class="last-update">
+                Última atualização: <span id="lastUpdate">--</span>
+            </div>
+        </main>
     </div>
-    <nav>
-      <a href="{{ url_for('index') }}">Home</a>
-      <a href="#">Sobre</a>
-    </nav>
-  </header>
 
-  <div class="container">
-    <aside class="menu-lateral">
-       <a href="{{ url_for('alerta') }}"><button >ALERTA</button></a>
-      <button class="ativo">MONITORAMENTO</button>
-    </aside>
+    <script>
+        // Histórico local para o gráfico
+        const historico = [];
+        const maxPontos = 20;
 
-    <main class="conteudo">
-      <h2>MONITORAMENTO</h2>
-      <div class="dados">
-        <p><strong>Nível de Gás:</strong> <span id="nivelGas">---</span></p>
-        <p><strong>Qualidade do Ar:</strong> <span id="qualidade">---</span></p>
-      </div>
+        // Configuração do gráfico
+        const ctx = document.getElementById('gasChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Nível de Gás (ppm)',
+                    data: [],
+                    borderColor: '#00A8E8',
+                    backgroundColor: 'rgba(0, 168, 232, 0.08)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#00A8E8'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f0f0f0' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
 
-      <div class="grafico-container">
-        <canvas id="grafico" width="350" height="150"></canvas>
-      </div>
-    </main>
-  </div>
+        function atualizarStatus(nivel) {
+            const statusGas = document.getElementById('statusGas');
+            const statusQualidade = document.getElementById('statusQualidade');
+            const qualidadeEl = document.getElementById('qualidade');
+
+            let textoStatus = '';
+            let classe = '';
+            let qualidade = '';
+
+            if (nivel < 300) {
+                textoStatus = 'Normal';
+                classe = 'normal';
+                qualidade = 'Boa';
+            } else if (nivel < 500) {
+                textoStatus = 'Atenção';
+                classe = 'atencao';
+                qualidade = 'Moderada';
+            } else {
+                textoStatus = 'Crítico';
+                classe = 'critico';
+                qualidade = 'Ruim';
+            }
+
+            statusGas.innerHTML = `<span class="badge ${classe}">${textoStatus}</span>`;
+            statusQualidade.innerHTML = `<span class="badge ${classe}">${qualidade}</span>`;
+            qualidadeEl.textContent = qualidade;
+        }
+
+        async function buscarDados() {
+            try {
+                const res = await fetch('/dados');
+                const data = await res.json();
+
+                const nivel = data.nivelGas ?? 0;
+                document.getElementById('nivelGas').textContent = `${nivel} ppm`;
+                atualizarStatus(nivel);
+
+                // Atualiza histórico
+                const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                historico.push({ tempo: agora, valor: nivel });
+                if (historico.length > maxPontos) historico.shift();
+
+                chart.data.labels = historico.map(h => h.tempo);
+                chart.data.datasets[0].data = historico.map(h => h.valor);
+                chart.update();
+
+                document.getElementById('lastUpdate').textContent = 'há poucos segundos';
+                document.getElementById('statusDot').className = 'dot online';
+                document.getElementById('statusText').textContent = 'Dispositivo Online';
+            } catch (err) {
+                console.error(err);
+                document.getElementById('statusDot').className = 'dot offline';
+                document.getElementById('statusText').textContent = 'Dispositivo Offline';
+            }
+        }
+
+        // Atualiza a cada 3 segundos
+        buscarDados();
+        setInterval(buscarDados, 3000);
+    </script>
 </body>
 </html>
