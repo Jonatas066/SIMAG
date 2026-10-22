@@ -1,13 +1,20 @@
 from flask import Flask, render_template, jsonify
 from firebase_admin import credentials, db, initialize_app
 import firebase_admin
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+os.getenv('')
 app = Flask(__name__)
 
 # === CONFIGURAÇÃO DO FIREBASE ===
-cred = credentials.Certificate("sismag-firebase-adminsdk-fbsvc-9c97b7bf6b.json")
-initialize_app(cred, {
-    'databaseURL': 'https://sismag-default-rtdb.firebaseio.com/'
+
+cred = credentials.Certificate(os.getenv('BD_JSON'))
+
+firebase_admin.initialize_app(cred, {
+    'databaseURL': os.getenv('URL_DATABASE')
 })
 
 # === ROTAS ===
