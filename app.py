@@ -9,8 +9,7 @@ load_dotenv()
 os.getenv('')
 app = Flask(__name__)
 
-# === CONFIGURAÇÃO DO FIREBASE ===
-
+# === CONFIGURAÇÃO DO FIREBASE (utilizando o dotenv)===
 cred = credentials.Certificate(os.getenv('BD_JSON'))
 
 firebase_admin.initialize_app(cred, {
@@ -18,6 +17,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 # === ROTAS ===
+
 @app.route('/')
 def index():
     return render_template('index.html')
