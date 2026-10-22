@@ -9,7 +9,7 @@ load_dotenv()
 os.getenv('')
 app = Flask(__name__)
 
-# === CONFIGURAÇÃO DO FIREBASE (utilizando o dotenv)===
+# === CONFIGURAÇÃO DO FIREBASE ===
 cred = credentials.Certificate(os.getenv('BD_JSON'))
 
 firebase_admin.initialize_app(cred, {
@@ -17,7 +17,6 @@ firebase_admin.initialize_app(cred, {
 })
 
 # === ROTAS ===
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -34,6 +33,7 @@ def alerta():
 def dados():
     ref = db.reference('/sensorMQ135')
     dados_sensor = ref.get()
+    
     if not dados_sensor:
         dados_sensor = {"nivelGas": 0, "qualidade": "Sem dados"}
     return jsonify(dados_sensor)
