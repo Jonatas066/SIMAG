@@ -62,6 +62,7 @@ Acesse no navegador com o link que for fornecido no terminal
 
 ## Estrutura do Projeto
 SIMAG/
+
 ├── app.py                      # Aplicação principal Flask
 
 ├── requirements.txt            # Dependências do projeto
