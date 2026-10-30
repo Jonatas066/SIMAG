@@ -63,9 +63,13 @@ Acesse no navegador com o link que for fornecido no terminal
 ## Estrutura do Projeto
 SIMAG/
 ├── app.py                      # Aplicação principal Flask
+
 ├── requirements.txt            # Dependências do projeto
+
 ├── .gitignore
+
 ├── README.md
+
 ├── static/                     # Arquivos estáticos
 │   ├── imagens/
 │   │   ├── g3.png
@@ -74,6 +78,9 @@ SIMAG/
 │   ├── styleindex.css
 │   └── stylemonitoramento.css
 └── templates/                  # Templates HTML
+
 ├── index.html
+
 ├── monitoramento.html
+
 └── alerta.html
